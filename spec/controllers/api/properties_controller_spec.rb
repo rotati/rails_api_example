@@ -2,8 +2,16 @@ require 'rails_helper'
 
 describe API::PropertiesController, :type => :controller do
   include JSONHelpers
+  # call render_views method becuase we use jbuilder to build the JSON response
+  render_views
 
   describe "GET index" do
+    let(:property) { create(:property) }
+
+    before do
+      property
+    end
+
     it "returns a list of all the properties" do
       get :index
       expect(response).to have_http_status(:success)
@@ -28,31 +36,9 @@ describe API::PropertiesController, :type => :controller do
       end
     end
 
-    describe "specifying media type in headers" do
-      context "returning properties as JSON" do
-        before do
-          @request.env["HTTP_ACCEPT"] = "application/json"
-          get :index
-        end
+    it_should_behave_like "a multi locale resource", action: :index
 
-        it "should return the correct content type" do
-          expect(response).to have_http_status(:success)
-          expect(response.header['Content-Type']).to include 'application/json'
-        end
-      end
-
-      context "returning properties as XML" do
-        before do
-          @request.env["HTTP_ACCEPT"] = "application/xml"
-          get :index
-        end
-
-        it "should return the correct content type" do
-          expect(response).to have_http_status(:success)
-          expect(response.header['Content-Type']).to include 'application/xml'
-        end
-      end
-    end
+    it_should_behave_like "a multi mimetype resource", action: :index
   end
 
   describe "SHOW :id" do
@@ -67,6 +53,13 @@ describe API::PropertiesController, :type => :controller do
       fetched_property = json(response.body)
       expect(fetched_property[:name]).to eq property.name
     end
-  end
 
+    it_should_behave_like "a multi locale resource", action: :show do
+      let(:params) { {id: property.id} }
+    end
+
+    it_should_behave_like "a multi mimetype resource", action: :show do
+      let(:params) { {id: property.id} }
+    end
+  end
 end

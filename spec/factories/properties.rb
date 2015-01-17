@@ -3,6 +3,6 @@ FactoryGirl.define do
     name { Faker::Name.name }
     width 10
     length 10
-    province { Faker::Lorem.word }
+    province { %w(kandal battambang krate kep kampot).sample.capitalize }
   end
 end
