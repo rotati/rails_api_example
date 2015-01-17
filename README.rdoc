@@ -1,28 +1,31 @@
-== README
+# README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Setting up dev
 
-Things you may want to cover:
+Edit your `/etc/hosts` file to map 127.0.0.1 (localhost) to the api subdomain of the development domain like so:
 
-* Ruby version
+`127.0.0.1 localhost api.estate-dev.com`
 
-* System dependencies
+Now, start the Rails server open your browser at [http://api.estate-dev.com:3000](http://api.estate-dev.com:3000) and you should see the Rails welcome page.
 
-* Configuration
+## Testing the API using CURL
 
-* Database creation
+### GET /properties (HTTP Headers only)
 
-* Database initialization
+`curl -I http://api.estate-dev.com:3000/properties/`
 
-* How to run the test suite
+### GET /properties (default JSON format)
 
-* Services (job queues, cache servers, search engines, etc.)
+`curl http://api.estate-dev.com:3000/properties`
 
-* Deployment instructions
+### GET /properties/:id
 
-* ...
+`curl http://api.estate-dev.com:3000/properties/1`
 
+### GET /properties/ (in XML format)
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+`curl -H "Accept: application/xml" http://api.estate-dev.com:3000/properties`
+
+### POST /properties
+
+`curl -i -X POST -d 'property[name]=Dadouland;property[province]=Kandel' http://api.estate-dev.com:3000/properties`
