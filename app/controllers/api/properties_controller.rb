@@ -5,7 +5,10 @@ module API
       if province = params[:province]
         properties = properties.where(province: province)
       end
-      render json: properties, status: 200
+      respond_to do |format|
+        format.any {render json: properties, status: 200}
+        format.xml {render xml: properties, status: 200}
+      end
     end
 
     def show

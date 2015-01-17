@@ -27,6 +27,32 @@ describe API::PropertiesController, :type => :controller do
         expect(names).to match_array(['Property in Kandal'])
       end
     end
+
+    describe "specifying media type in headers" do
+      context "returning properties as JSON" do
+        before do
+          @request.env["HTTP_ACCEPT"] = "application/json"
+          get :index
+        end
+
+        it "should return the correct content type" do
+          expect(response).to have_http_status(:success)
+          expect(response.header['Content-Type']).to include 'application/json'
+        end
+      end
+
+      context "returning properties as XML" do
+        before do
+          @request.env["HTTP_ACCEPT"] = "application/xml"
+          get :index
+        end
+
+        it "should return the correct content type" do
+          expect(response).to have_http_status(:success)
+          expect(response.header['Content-Type']).to include 'application/xml'
+        end
+      end
+    end
   end
 
   describe "SHOW :id" do
@@ -36,7 +62,7 @@ describe API::PropertiesController, :type => :controller do
       property
     end
 
-    it "should return the property with the specified id", focus: true do
+    it "should return the property with the specified id" do
       get :show, id: property.id
       fetched_property = json(response.body)
       expect(fetched_property[:name]).to eq property.name
