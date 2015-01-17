@@ -62,4 +62,26 @@ describe API::PropertiesController, :type => :controller do
       let(:params) { {id: property.id} }
     end
   end
+
+  describe "POST property" do
+    it "should create a new property" do
+      expect{
+        post :create, property: FactoryGirl.attributes_for(:property)
+      }.to change(Property,:count).by(1)
+
+      expect(response).to have_http_status(:created)
+
+      expect(response.header['Content-Type']).to include Mime::JSON
+
+      created_property = json(response.body)
+
+      expect(api_property_url(created_property[:id])).to eq response.location
+    end
+
+    it "should not create a property with invalid parameters (i.e. nil name)" do
+      expect{
+        post :create, property: FactoryGirl.attributes_for(:property).merge(name: nil)
+      }.not_to change(Property,:count)
+    end
+  end
 end
