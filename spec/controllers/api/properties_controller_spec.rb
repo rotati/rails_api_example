@@ -5,13 +5,13 @@ describe API::PropertiesController, :type => :controller do
   # call render_views method becuase we use jbuilder to build the JSON response
   render_views
 
+  let(:property) { create(:property) }
+
+  before do
+    property
+  end
+
   describe "GET index" do
-    let(:property) { create(:property) }
-
-    before do
-      property
-    end
-
     it "returns a list of all the properties" do
       get :index
       expect(response).to have_http_status(:success)
@@ -42,12 +42,6 @@ describe API::PropertiesController, :type => :controller do
   end
 
   describe "SHOW :id" do
-    let(:property) { create(:property) }
-
-    before do
-      property
-    end
-
     it "should return the property with the specified id" do
       get :show, id: property.id
       fetched_property = json(response.body)
@@ -82,6 +76,40 @@ describe API::PropertiesController, :type => :controller do
       expect{
         post :create, property: FactoryGirl.attributes_for(:property).merge(name: nil)
       }.not_to change(Property,:count)
+    end
+  end
+
+  describe "PATCH property" do
+    def property_attribute(options={})
+      FactoryGirl.attributes_for(:property).merge!(options)
+    end
+
+    context "passing valid attributes" do
+      before do
+        patch :update, id: property.id, property: property_attribute(name: "A new name")
+      end
+
+      it "should update an existing property" do
+        property.reload.name.should eq "A new name"
+      end
+    end
+
+    context "passing invalid attributes" do
+      before do
+        patch :update, id: property.id, property: property_attribute(name: nil)
+      end
+
+      it "should not update the property when passed invalid attributes" do
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe "DELETE property" do
+    it "should delete the property" do
+      expect{
+        delete :destroy, id: property.id
+      }.to change(Property, :count).from(1).to(0)
     end
   end
 end

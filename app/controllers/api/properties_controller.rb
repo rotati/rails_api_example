@@ -32,6 +32,22 @@ module API
       end
     end
 
+    def update
+      property = Property.find(params[:id])
+
+      if property.update(property_params)
+        render json: property, status: :success
+      else
+        render json: property.errors, status: :unprocessable_entity
+      end
+    end
+
+    def destroy
+      property = Property.find(params[:id])
+      property.destroy
+      head 204
+    end
+
 private
     def property_params
       params.require(:property).permit(:name, :width, :length, :province)
