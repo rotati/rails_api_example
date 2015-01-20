@@ -14,4 +14,26 @@ protected
   def set_default_format_json
     request.format = Mime::JSON.to_sym if request.format == Mime::HTML
   end
+
+  def render(*args)
+    # Only set the version if the requested version is not the default models version
+    set_version if requested_version != model_constant::VERSION
+    super
+  end
+
+  def requested_version
+    @requested_version ||= params[:version].blank? ? request.headers['ACCEPT'].gsub('application/vnd.rotati.','')[1..8] : params[:version]
+  end
+
+  def version_module
+    @version_module ||= "#{model_name}RepresentationV#{requested_version}".constantize
+  end
+
+  def model_name
+    params[:controller].singularize.capitalize
+  end
+
+  def model_constant
+    model_name.constantize
+  end
 end

@@ -12,20 +12,25 @@ Now, start the Rails server open your browser at [http://api.estate-dev.com:3000
 
 ### GET /properties (HTTP Headers only)
 
-`curl -I http://api.estate-dev.com:3000/properties/`
+`curl -I http://api.estate-dev.com:3000/properties?version=20150116`
 
 ### GET /properties (default JSON format)
 
-`curl http://api.estate-dev.com:3000/properties`
+`curl http://api.estate-dev.com:3000/properties?version=20150116`
 
 ### GET /properties/:id
 
-`curl http://api.estate-dev.com:3000/properties/1`
-
-### GET /properties/ (in XML format)
-
-`curl -H "Accept: application/xml" http://api.estate-dev.com:3000/properties`
+`curl http://api.estate-dev.com:3000/properties/1?version=20150116`
 
 ### POST /properties
 
-`curl -i -X POST -d 'property[name]=Dadouland;property[province]=Kandel' http://api.estate-dev.com:3000/properties`
+`curl -i -X POST -d 'property[name]=Dadouland;property[province]=Kandel' http://api.estate-dev.com:3000/properties?version=20150116`
+
+### GET /properties/ (in a specific representation version using 'Accept' headers)
+
+`curl -H "Accept: application/vnd.rotati.v20150116+json" http://api.estate-dev.com:3000/properties`
+
+### GET /properties/ (in a specific representation version using url params)
+
+`curl http://api.estate-dev.com:3000/properties?version=20150116`
+

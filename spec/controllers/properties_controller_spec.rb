@@ -1,22 +1,13 @@
 require 'rails_helper'
 
-describe V1::PropertiesController, :type => :controller do
+describe PropertiesController, :type => :controller do
   include JSONHelpers
-  # call render_views method becuase we use jbuilder to build the JSON response
-  render_views
 
   let(:property) { create(:property) }
 
   before do
     property
-  end
-
-  describe "V1 properties/ping" do
-    it "should return 'From V1 PropertiesController'" do
-      get :ping
-      json = json(response.body)
-      expect(json[:pong]).to include "From V1 PropertiesController"
-    end
+    @request.env['HTTP_ACCEPT'] = "application/vnd.rotati.v20150120+json"
   end
 
   describe "GET index" do
@@ -45,8 +36,6 @@ describe V1::PropertiesController, :type => :controller do
     end
 
     it_should_behave_like "a multi locale resource", action: :index
-
-    it_should_behave_like "a multi mimetype resource", action: :index
   end
 
   describe "SHOW :id" do
@@ -57,10 +46,6 @@ describe V1::PropertiesController, :type => :controller do
     end
 
     it_should_behave_like "a multi locale resource", action: :show do
-      let(:params) { {id: property.id} }
-    end
-
-    it_should_behave_like "a multi mimetype resource", action: :show do
       let(:params) { {id: property.id} }
     end
   end
@@ -77,7 +62,7 @@ describe V1::PropertiesController, :type => :controller do
 
       created_property = json(response.body)
 
-      expect(v1_property_url(created_property[:id])).to eq response.location
+      expect(property_url(created_property[:id])).to eq response.location
     end
 
     it "should not create a property with invalid parameters (i.e. nil name)" do
@@ -119,5 +104,45 @@ describe V1::PropertiesController, :type => :controller do
         delete :destroy, id: property.id
       }.to change(Property, :count).from(1).to(0)
     end
+  end
+
+  describe "Versioning" do
+    shared_examples "a versionable api" do |options|
+      options ||={}
+
+      context "by url params" do
+        describe "SHOW /property/:id" do
+          it "should include the version number #{options[:version]}" do
+            get :show, id: property.id, version: options[:version]
+            property = json(response.body)
+            expect(property[:version]).to eq options[:version]
+          end
+        end
+
+        describe "GET /properties" do
+          it "should include the version number #{options[:version]}" do
+            get :index, version: options[:version]
+            properties = json(response.body)
+            expect(properties[0][:version]).to eq options[:version]
+          end
+        end
+      end
+
+      context "by accept header", :focus do
+        before do
+          @request.env['HTTP_ACCEPT'] = "application/vnd.rotati.v#{options[:version]}+json"
+        end
+
+        it "should include the version number #{options[:version]}" do
+          get :show, id: property.id
+          property = json(response.body)
+          expect(property[:version]).to eq options[:version]
+        end
+      end
+    end
+
+    it_should_behave_like "a versionable api", version: '20150120'
+
+    it_should_behave_like "a versionable api", version: '20150116'
   end
 end
