@@ -1,5 +1,9 @@
-module API
+module V1
   class PropertiesController < ApplicationController
+    def ping
+      render json: { pong: "From V1 PropertiesController: #{DateTime.now}" }
+    end
+
     def index
       @properties = Property.all
 
@@ -26,7 +30,7 @@ module API
       property = Property.new(property_params)
 
       if property.save
-        render json: property, status: :created, location: api_property_url(property)
+        render json: property, status: :created, location: v1_property_url(property)
       else
         render json: property.errors, status: :unprocessable_entity
       end

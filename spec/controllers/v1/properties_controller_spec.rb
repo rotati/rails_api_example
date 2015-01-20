@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe API::PropertiesController, :type => :controller do
+describe V1::PropertiesController, :type => :controller do
   include JSONHelpers
   # call render_views method becuase we use jbuilder to build the JSON response
   render_views
@@ -9,6 +9,14 @@ describe API::PropertiesController, :type => :controller do
 
   before do
     property
+  end
+
+  describe "V1 properties/ping" do
+    it "should return 'From V1 PropertiesController'" do
+      get :ping
+      json = json(response.body)
+      expect(json[:pong]).to include "From V1 PropertiesController"
+    end
   end
 
   describe "GET index" do
@@ -69,7 +77,7 @@ describe API::PropertiesController, :type => :controller do
 
       created_property = json(response.body)
 
-      expect(api_property_url(created_property[:id])).to eq response.location
+      expect(v1_property_url(created_property[:id])).to eq response.location
     end
 
     it "should not create a property with invalid parameters (i.e. nil name)" do
