@@ -1,5 +1,6 @@
 class PropertiesController < ApplicationController
   before_action :set_property, only: [:show, :update, :destroy]
+  before_action :authenticate, only: [:exclusive]
 
   def index
     @properties = Property.all
@@ -35,6 +36,17 @@ class PropertiesController < ApplicationController
   def destroy
     @property.destroy
     head 204
+  end
+
+  def exclusive
+    render json: { message: "Welcome exclusive member!" }
+  end
+
+protected
+  def authenticate
+    authenticate_or_request_with_http_basic do |username, password|
+      return (username == 'dadou' && password == 'dadouland')
+    end
   end
 
 private

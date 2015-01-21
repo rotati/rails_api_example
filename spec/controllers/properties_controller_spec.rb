@@ -128,7 +128,7 @@ describe PropertiesController, :type => :controller do
         end
       end
 
-      context "by accept header", :focus do
+      context "by accept header" do
         before do
           @request.env['HTTP_ACCEPT'] = "application/vnd.rotati.v#{options[:version]}+json"
         end
@@ -144,5 +144,28 @@ describe PropertiesController, :type => :controller do
     it_should_behave_like "a versionable api", version: '20150120'
 
     it_should_behave_like "a versionable api", version: '20150116'
+  end
+
+  describe "Authentication" do
+    context "without authentication credentials" do
+      it "should not allow access to the exclusive area of the api" do
+        get :exclusive
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context "with correct authentication credentials" do
+      let(:encoded_credentials) { ActionController::HttpAuthentication::Basic.encode_credentials('dadou', 'dadouland') }
+
+      before do
+        @request.env['HTTP_AUTHORIZATION'] = encoded_credentials
+      end
+
+      it "should allow access to the api" do
+        get :exclusive
+        expect(response).to have_http_status(:ok)
+        expect(json(response.body)[:message]).to eq "Welcome exclusive member!"
+      end
+    end
   end
 end
